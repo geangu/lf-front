@@ -12,54 +12,77 @@ library.add(faBusinessTime, faArrowLeft, faArrowRight);
 class Business extends Component {
 
     validator = new SimpleReactValidator();
-
-    taxId = React.createRef();
-    businessName = React.createRef();
-    address = React.createRef();
-    city = React.createRef();
-    _state = React.createRef();
-    postalCode = React.createRef();
-    amount = React.createRef();
-
     state = {
         ok: false,
-        taxId: "",
-        businessName: "",
-        address: "",
-        city: "",
-        state: "",
-        postalCode: "",
+        business: {
+            taxId: "",
+            businessName: "",
+            address: "",
+            city: "",
+            state: "",
+            postalCode: "",
+        },
         amount: "",
     };
+
+    UNSAFE_componentWillMount() {
+        this.taxId = React.createRef();
+        this.businessName = React.createRef();
+        this.address = React.createRef();
+        this.city = React.createRef();
+        this._state = React.createRef();
+        this.postalCode = React.createRef();
+        this.amount = React.createRef();
+        
+        if (this.props.location.state !== undefined) {
+            this.setState(this.props.location.state);
+            setTimeout(()=>{
+                this.taxId.current.value = this.props.location.state.business.taxId;
+                this.businessName.current.value = this.props.location.state.business.businessName;
+                this.address.current.value = this.props.location.state.business.address;
+                this.city.current.value = this.props.location.state.business.city;
+                this._state.current.value = this.props.location.state.business.state
+                this.postalCode.current.value = this.props.location.state.business.postalCode;
+                this.amount.current.value = this.props.location.state.amount;
+                this.forceUpdate();
+            },100);
+        }
+    }
 
     updateValues = (e) => {
         e.preventDefault();
         this.setState({
-            taxId: this.taxId.current.value,
-            businessName: this.businessName.current.value,
-            address: this.address.current.value,
-            city: this.city.current.value,
-            state: this._state.current.value,
-            postalCode: this.postalCode.current.value,
+            business: {
+                taxId: this.taxId.current.value,
+                businessName: this.businessName.current.value,
+                address: this.address.current.value,
+                city: this.city.current.value,
+                state: this._state.current.value,
+                postalCode: this.postalCode.current.value,
+            },
             amount: this.amount.current.value
         });
-        console.log(this.state);
     }
 
     nextPage = (e) => {
         e.preventDefault();
         if (this.validator.allValid()) {
-            this.setState({ok: true})
+            this.setState({ ok: true })
         } else {
-            this.setState({ok: false})
+            this.setState({ ok: false })
             this.validator.showMessages();
         }
     };
 
     render() {
-
         if (this.state.ok) {
-            return (<Redirect to="/owner"></Redirect>);
+            return (<Redirect to={{
+                pathname: '/owner',
+                state: {
+                    'business': this.state.business,
+                    'amount': this.state.amount
+                }
+            }} />);
         }
 
         return (
@@ -79,24 +102,24 @@ class Business extends Component {
                         <div className="form-group col-md-3">
                             <label htmlFor="inputTaxId">Tax Id</label>
                             <input type="text" className="form-control" id="inputTaxId" placeholder="Tax Id" ref={this.taxId} />
-                            {this.validator.message('TaxId', this.state.taxId, 'required')}
+                            {this.validator.message('TaxId', this.state.business.taxId, 'required')}
                         </div>
                         <div className="form-group col-md-9">
                             <label htmlFor="businessName">Business Name</label>
                             <input type="text" className="form-control" id="businessName" placeholder="Business Name" ref={this.businessName} />
-                            {this.validator.message('businessName', this.state.businessName, 'required')}
+                            {this.validator.message('businessName', this.state.business.businessName, 'required')}
                         </div>
                     </div>
                     <div className="form-group">
                         <label htmlFor="inputAddress">Address</label>
                         <input type="text" className="form-control" id="inputAddress" placeholder="1234 Main St" ref={this.address} />
-                        {this.validator.message('address', this.state.address, 'required')}
+                        {this.validator.message('address', this.state.business.address, 'required')}
                     </div>
                     <div className="form-row">
                         <div className="form-group col-md-6">
                             <label htmlFor="inputCity">City</label>
                             <input type="text" className="form-control" id="inputCity" placeholder="Seattle" ref={this.city} />
-                            {this.validator.message('city', this.state.address, 'required')}
+                            {this.validator.message('city', this.state.business.city, 'required')}
                         </div>
                         <div className="form-group col-md-4">
                             <label htmlFor="inputState">State</label>
@@ -154,12 +177,12 @@ class Business extends Component {
                                 <option value="Wyoming">Wyoming</option>
 
                             </select>
-                            {this.validator.message('state', this.state.state, 'required')}
+                            {this.validator.message('state', this.state.business.state, 'required')}
                         </div>
                         <div className="form-group col-md-2">
                             <label htmlFor="inputZip">Zip</label>
                             <input type="text" className="form-control" id="inputZip" ref={this.postalCode} />
-                            {this.validator.message('postalCode', this.state.postalCode, 'required|numeric')}
+                            {this.validator.message('postalCode', this.state.business.postalCode, 'required|numeric')}
                         </div>
                     </div>
                     <hr></hr>

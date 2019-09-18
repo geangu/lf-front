@@ -14,14 +14,13 @@ class Header extends Component {
           <div className="row">
             <div className="col-sm-8 col-md-7 py-4">
               <h4 className="text-white">Gerardo Andres Gutierrez Rodriguez</h4>
-              <p className="text-muted">Frontend solution of the technical test.</p>
-              <p className="text-muted">@geangu.</p>
+              <p className="text-muted">@geangu</p>
             </div>
             <div className="col-sm-4 offset-md-1 py-4">
               <h4 className="text-white">Contact</h4>
               <ul className="list-unstyled">
-                <li><a href="https://twitter.com/geangu" target="_blank" rel="noopener noreferrer" className="text-white">Twitter</a></li>
-                <li><a href="https://www.facebook.com/geangu" target="_blank" rel="noopener noreferrer" className="text-white">Facebook</a></li>
+                <li><a href="https://www.linkedin.com/in/geangu/" target="_blank" rel="noopener noreferrer" className="text-white">LinkedIn</a></li>
+                <li><a href="https://www.github.com/geangu/" target="_blank" rel="noopener noreferrer" className="text-white">GitHub</a></li>
                 <li><a href="mailto:geangu@gmail.com" target="_blank" rel="noopener noreferrer" className="text-white">Email</a></li>
               </ul>
             </div>

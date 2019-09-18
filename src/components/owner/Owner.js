@@ -8,12 +8,18 @@ import swal from 'sweetalert';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faUser, faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import Axios from 'axios';
+
+import Constants from '../../config/Constants'
+
 
 library.add(faUser, faArrowLeft, faArrowRight);
 
 class Owner extends Component {
 
   validator = new SimpleReactValidator();
+  amount = Number(this.props.location.state.amount);
+  business = this.props.location.state.business;
 
   securityNumber = React.createRef();
   ownerName = React.createRef();
@@ -25,33 +31,64 @@ class Owner extends Component {
 
   state = {
     ok: false,
-    securityNumber: "",
-    ownerName: "",
-    email: "",
-    address: "",
-    city: "",
-    state: "",
-    postalCode: "",
+    owner: {
+      securityNumber: "",
+      ownerName: "",
+      email: "",
+      address: "",
+      city: "",
+      state: "",
+      postalCode: "",
+    }
   };
 
   updateValues = (e) => {
     e.preventDefault();
     this.setState({
-      securityNumber: this.securityNumber.current.value,
-      ownerName: this.ownerName.current.value,
-      email: this.email.current.value,
-      address: this.address.current.value,
-      city: this.city.current.value,
-      state: this._state.current.value,
-      postalCode: this.postalCode.current.value,
+      owner: {
+        securityNumber: this.securityNumber.current.value,
+        ownerName: this.ownerName.current.value,
+        email: this.email.current.value,
+        address: this.address.current.value,
+        city: this.city.current.value,
+        state: this._state.current.value,
+        postalCode: this.postalCode.current.value,
+      }
     });
   }
 
   nextPage = (e) => {
     e.preventDefault();
     if (this.validator.allValid()) {
-      this.setState({ ok: true })
-      swal('Application Approved', 'The loan application is viable and has been approved', 'success');
+      Axios.post(
+        Constants.API_BASE_URL + '/loan',
+        {
+          "amount": this.amount,
+          "business": this.business,
+          "owner": this.state.owner,
+        }).then((res) => {
+          if (res.data.decision) {
+            let decision = res.data.decision
+            var className = "info";
+            switch (decision) {
+              case "Aproved":
+                className = "success";
+                this.setState({ ok: true })
+                break;
+              case "Declined":
+                className = "error";
+                this.setState({ ok: false })
+                break;
+              case "Undecided":
+                className = "warning";
+                this.setState({ ok: false })
+                break;
+              default:
+                className = "info";
+            }
+            swal('Application ' + decision, 'The loan application is ' + decision, className);
+          }
+        });
     } else {
       this.setState({ ok: false })
       this.validator.showMessages();
@@ -74,29 +111,29 @@ class Owner extends Component {
             <div className="form-group col-md-3">
               <label htmlFor="inputSecurityNumber">Social Security Number</label>
               <input type="text" className="form-control" id="inputSecurityNumber" placeholder="9876543210" ref={this.securityNumber} />
-              {this.validator.message('securityNumber', this.state.securityNumber, 'required|numeric')}
+              {this.validator.message('securityNumber', this.state.owner.securityNumber, 'required|numeric')}
             </div>
             <div className="form-group col-md-9">
               <label htmlFor="ownerName">Owner Name</label>
               <input type="text" className="form-control" id="ownerName" placeholder="Owner Name" ref={this.ownerName} />
-              {this.validator.message('ownerName', this.state.ownerName, 'required')}
+              {this.validator.message('ownerName', this.state.owner.ownerName, 'required')}
             </div>
           </div>
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input type="text" className="form-control" id="email" placeholder="10000" ref={this.email} />
-            {this.validator.message('email', this.state.email, 'required|email')}
+            {this.validator.message('email', this.state.owner.email, 'required|email')}
           </div>
           <div className="form-group">
             <label htmlFor="inputAddress">Address</label>
             <input type="text" className="form-control" id="inputAddress" placeholder="1234 Main St" ref={this.address} />
-            {this.validator.message('address', this.state.address, 'required')}
+            {this.validator.message('address', this.state.owner.address, 'required')}
           </div>
           <div className="form-row">
             <div className="form-group col-md-6">
               <label htmlFor="inputCity">City</label>
               <input type="text" className="form-control" id="inputCity" placeholder="Seattle" ref={this.city} />
-              {this.validator.message('city', this.state.address, 'required')}
+              {this.validator.message('city', this.state.owner.city, 'required')}
             </div>
             <div className="form-group col-md-4">
               <label htmlFor="inputState">State</label>
@@ -154,19 +191,19 @@ class Owner extends Component {
                 <option value="Wyoming">Wyoming</option>
 
               </select>
-              {this.validator.message('state', this.state.state, 'required')}
+              {this.validator.message('state', this.state.owner.state, 'required')}
             </div>
             <div className="form-group col-md-2">
               <label htmlFor="inputZip">Zip</label>
               <input type="text" className="form-control" id="inputZip" ref={this.postalCode} />
-              {this.validator.message('postalCode', this.state.postalCode, 'required|numeric')}
+              {this.validator.message('postalCode', this.state.owner.postalCode, 'required|numeric')}
             </div>
           </div>
           <hr></hr>
           <div className="text-right">
-            <Link className="btn btn-link btn-lg" to="/business">
+            <Link className="btn btn-link btn-lg" to={{ pathname: '/business', state: { 'business': this.business, 'amount': this.amount } }}>
               <FontAwesomeIcon icon="arrow-left" /> Back
-                        </Link>
+            </Link>
             <button type="submit" className="btn btn-success btn-lg">
               Next <FontAwesomeIcon icon="arrow-right" />
             </button>
