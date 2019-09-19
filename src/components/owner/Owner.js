@@ -60,34 +60,45 @@ class Owner extends Component {
   nextPage = (e) => {
     e.preventDefault();
     if (this.validator.allValid()) {
-      Axios.post(
-        Constants.API_BASE_URL + '/loan',
-        {
-          "amount": this.amount,
-          "business": this.business,
-          "owner": this.state.owner,
-        }).then((res) => {
-          if (res.data.decision) {
-            let decision = res.data.decision
-            var className = "info";
-            switch (decision) {
-              case "Aproved":
-                className = "success";
-                this.setState({ ok: true })
-                break;
-              case "Declined":
-                className = "error";
-                this.setState({ ok: false })
-                break;
-              case "Undecided":
-                className = "warning";
-                this.setState({ ok: false })
-                break;
-              default:
-                className = "info";
-            }
-            swal('Application ' + decision, 'The loan application is ' + decision, className);
-          }
+      swal({
+        title: "Are you sure to apply for the loan?",
+        text: "Amount: " + this.amount,
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+        showLoaderOnConfirm: true,
+        closeModal: false
+      })
+        .then(() => {
+          Axios.post(
+            Constants.API_BASE_URL + '/loan',
+            {
+              "amount": this.amount,
+              "business": this.business,
+              "owner": this.state.owner,
+            }).then((res) => {
+              if (res.data.decision) {
+                let decision = res.data.decision
+                var className = "info";
+                switch (decision) {
+                  case "Aproved":
+                    className = "success";
+                    this.setState({ ok: true })
+                    break;
+                  case "Declined":
+                    className = "error";
+                    this.setState({ ok: false })
+                    break;
+                  case "Undecided":
+                    className = "warning";
+                    this.setState({ ok: false })
+                    break;
+                  default:
+                    className = "info";
+                }
+                swal('Application ' + decision, 'The loan application is ' + decision, className);
+              }
+            });
         });
     } else {
       this.setState({ ok: false })
